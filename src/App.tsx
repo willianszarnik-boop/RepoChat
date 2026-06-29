@@ -31,7 +31,7 @@ import { motion, AnimatePresence } from 'motion/react';
 // Custom UpChat Logo using the official URL: https://upchat.com.br/wp-content/uploads/2026/05/png2-2.png
 const UpChatLogo = () => (
   <img 
-    src="https://upchat.com.br/wp-content/uploads/2026/05/png2-2.png" 
+    src="https://i.ibb.co/S48g43tD/Camada-1-1-rmz080p4rox4riinvwntgvbwheserriego8hwd5zi8-1.png" 
     alt="UpChat Logo" 
     className="w-8 h-8 object-contain"
     referrerPolicy="no-referrer"
@@ -138,7 +138,7 @@ export default function App() {
               rel="noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 bg-[#050b69]/60 hover:bg-white/5 text-slate-300 hover:text-white border border-white/10 rounded-xl text-xs font-medium transition-all shadow-sm"
             >
-              <span>Painel UpChat</span>
+              <span>Painel de Operação</span>
               <ExternalLink className="w-3 h-3 text-brand-pink" />
             </a>
           </div>
