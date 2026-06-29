@@ -1,0 +1,6 @@
+{
+  "name": "RepoChat",
+  "description": "Repositório de informações, documentações de API, tutoriais de vídeo e ferramentas úteis integrado ao Google Drive para a plataforma UpChat.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

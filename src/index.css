@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-pink: #fa098a;
+  --color-brand-blue: #00054f;
+  
+  --color-dark-bg: #00054f;
+  --color-dark-header: #000236;
+  --color-dark-card: #050b69;
+}
+
+/* Custom scrollbars for a cohesive tech feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000224;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0d1487;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #fa098a;
+}
+
+/* Glow effects for Sophisticated Dark design */
+.glow-pink {
+  box-shadow: 0 0 20px -3px rgba(250, 9, 138, 0.35);
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px -3px rgba(0, 5, 79, 0.5);
+}
+
+
