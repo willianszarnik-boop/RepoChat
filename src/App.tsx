@@ -65,6 +65,12 @@ export default function App() {
         }
         return folder;
       });
+      // Ensure new preset folders like 'drive-ia-intencao' are added
+      PRESET_DRIVE_FOLDERS.forEach(preset => {
+        if (!updated.some(folder => folder.id === preset.id)) {
+          updated.push(preset);
+        }
+      });
       setFolders(updated);
       localStorage.setItem('mothership_folders', JSON.stringify(updated));
     } else {
@@ -155,7 +161,7 @@ export default function App() {
             <span>Repositório de Ajuda & Automações RepoChat</span>
           </div>
           <h1 className="font-display font-light text-3xl sm:text-4xl text-white tracking-tight leading-none">
-            Central de <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-pink to-[#ff47b6]">Integrações & Tutoriais</span>
+            Repositorio de <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-pink to-[#ff47b6]">implementação</span>
           </h1>
           <p className="text-slate-350 text-sm sm:text-base leading-relaxed">
             Consulte rotas de APIs e scripts SQL, assista a vídeo-aulas práticas de configuração do UpChat, acesse pastas compartilhadas do Google Drive e use ferramentas selecionadas para acelerar seus chatbots ISP.

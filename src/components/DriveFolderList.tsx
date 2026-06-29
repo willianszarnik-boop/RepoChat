@@ -112,16 +112,6 @@ export default function DriveFolderList({ folders, onAddFolder, onDeleteFolder }
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-
-        {/* Add Folder Button */}
-        <button
-          id="btn-add-folder"
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-pink hover:bg-brand-pink/90 text-white font-semibold rounded-xl text-sm transition-all shadow-lg shadow-brand-pink/10 group cursor-pointer"
-        >
-          <PlusCircle className="w-4 h-4 transition-transform group-hover:scale-110" />
-          <span>Vincular Pasta do Drive</span>
-        </button>
       </div>
 
       {/* Category Pills */}
@@ -171,9 +161,6 @@ export default function DriveFolderList({ folders, onAddFolder, onDeleteFolder }
                       <div className="flex items-center gap-2 mt-1">
                         <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold tracking-wide ${getBadgeColor(folder.category)}`}>
                           {folder.category}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          {folder.fileCount} arquivos salvos
                         </span>
                       </div>
                     </div>

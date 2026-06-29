@@ -108,16 +108,6 @@ export default function UsefulSitesGrid({ sites, onAddSite, onDeleteSite }: Usef
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-
-        {/* Add Button */}
-        <button
-          id="btn-add-site"
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-pink hover:bg-brand-pink/90 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-brand-pink/10 group cursor-pointer"
-        >
-          <PlusCircle className="w-4 h-4 transition-transform group-hover:scale-110" />
-          <span>Adicionar Atalho</span>
-        </button>
       </div>
 
       {/* Category Pills */}

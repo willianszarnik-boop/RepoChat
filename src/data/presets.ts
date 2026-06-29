@@ -87,6 +87,14 @@ export const PRESET_DRIVE_FOLDERS: DriveFolder[] = [
     category: 'MK Solutions',
   },
   {
+    id: 'drive-ia-intencao',
+    name: 'Fluxo Padrão: IA de intenção',
+    description: 'Modelos e estruturas de prompts, diagramas de arquitetura e exemplos de configuração para a IA de Intenções do UpChat.',
+    url: 'https://drive.google.com/drive/folders/19P56XwNOxPBA5aAB_GvUf3qR8_ZFF_RO?usp=drive_link',
+    fileCount: 12,
+    category: 'Outras integrações',
+  },
+  {
     id: 'drive-outras',
     name: 'Fluxo Padrão: Outras integrações',
     description: 'Repositório geral de scripts de suporte, arquivos de locução comuns e documentações complementares para outras integradoras ISP.',
