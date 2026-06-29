@@ -9,6 +9,7 @@ import UsefulSitesGrid from './components/UsefulSitesGrid';
 import DriveFolderList from './components/DriveFolderList';
 import DocumentationSection from './components/DocumentationSection';
 import TutorialsSection from './components/TutorialsSection';
+import EmptyState from './components/EmptyState';
 import { 
   FolderOpen, 
   Globe, 
@@ -38,7 +39,7 @@ const UpChatLogo = () => (
 );
 
 export default function App() {
-  const [activeMainTab, setActiveMainTab] = useState<'docs' | 'tutorials' | 'drive' | 'sites'>('docs');
+  const [activeMainTab, setActiveMainTab] = useState<'docs' | 'tutorials' | 'drive' | 'sites'>('drive');
   
   // State for dynamic additions with LocalStorage persistence
   const [sites, setSites] = useState<UsefulSite[]>([]);
@@ -55,7 +56,17 @@ export default function App() {
 
     const savedFolders = localStorage.getItem('mothership_folders');
     if (savedFolders) {
-      setFolders(JSON.parse(savedFolders));
+      const parsed: DriveFolder[] = JSON.parse(savedFolders);
+      // Migrate preset URLs to latest official ones
+      const updated = parsed.map(folder => {
+        const matchingPreset = PRESET_DRIVE_FOLDERS.find(p => p.id === folder.id);
+        if (matchingPreset) {
+          return { ...folder, url: matchingPreset.url };
+        }
+        return folder;
+      });
+      setFolders(updated);
+      localStorage.setItem('mothership_folders', JSON.stringify(updated));
     } else {
       setFolders(PRESET_DRIVE_FOLDERS);
     }
@@ -154,32 +165,6 @@ export default function App() {
         {/* Tab Switcher - Centered Visual Buttons with UpChat Brand Pink Styling */}
         <div className="flex flex-wrap sm:flex-nowrap justify-center p-1.5 bg-[#000224]/80 border border-white/5 rounded-2xl max-w-2xl mx-auto shadow-inner gap-1">
           <button
-            id="btn-main-tab-docs"
-            onClick={() => setActiveMainTab('docs')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-              activeMainTab === 'docs'
-                ? 'bg-brand-pink text-white shadow-lg shadow-brand-pink/15 font-bold'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <BookOpen className="w-4 h-4 shrink-0" />
-            <span>Documentação</span>
-          </button>
-
-          <button
-            id="btn-main-tab-tutorials"
-            onClick={() => setActiveMainTab('tutorials')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-              activeMainTab === 'tutorials'
-                ? 'bg-brand-pink text-white shadow-lg shadow-brand-pink/15 font-bold'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Video className="w-4 h-4 shrink-0" />
-            <span>Tutoriais</span>
-          </button>
-
-          <button
             id="btn-main-tab-drive"
             onClick={() => setActiveMainTab('drive')}
             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
@@ -204,6 +189,32 @@ export default function App() {
             <Globe className="w-4 h-4 shrink-0" />
             <span>Sites Úteis</span>
           </button>
+
+          <button
+            id="btn-main-tab-docs"
+            onClick={() => setActiveMainTab('docs')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              activeMainTab === 'docs'
+                ? 'bg-brand-pink text-white shadow-lg shadow-brand-pink/15 font-bold'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <BookOpen className="w-4 h-4 shrink-0" />
+            <span>Documentação</span>
+          </button>
+
+          <button
+            id="btn-main-tab-tutorials"
+            onClick={() => setActiveMainTab('tutorials')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              activeMainTab === 'tutorials'
+                ? 'bg-brand-pink text-white shadow-lg shadow-brand-pink/15 font-bold'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Video className="w-4 h-4 shrink-0" />
+            <span>Tutoriais</span>
+          </button>
         </div>
 
         {/* Selected Tab Content Container */}
@@ -217,7 +228,7 @@ export default function App() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <DocumentationSection />
+                <EmptyState />
               </motion.div>
             )}
 
@@ -229,7 +240,7 @@ export default function App() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <TutorialsSection />
+                <EmptyState />
               </motion.div>
             )}
 
