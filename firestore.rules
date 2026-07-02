@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default-deny catch-all (mandatory under Global Safety Net)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper to validate generic string-based IDs
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Useful Sites collection rules
+    match /useful_sites/{siteId} {
+      allow read: if true;
+      allow create, update: if isValidId(siteId) 
+        && request.resource.data.id == siteId
+        && request.resource.data.name is string && request.resource.data.name.size() <= 100
+        && request.resource.data.url is string && request.resource.data.url.size() <= 500;
+      allow delete: if isValidId(siteId);
+    }
+
+    // Drive folders collection rules
+    match /drive_folders/{folderId} {
+      allow read: if true;
+      allow create, update: if isValidId(folderId)
+        && request.resource.data.id == folderId
+        && request.resource.data.name is string && request.resource.data.name.size() <= 100
+        && request.resource.data.url is string && request.resource.data.url.size() <= 500;
+      allow delete: if isValidId(folderId);
+    }
+
+    // Doc Articles collection rules
+    match /doc_articles/{docId} {
+      allow read: if true;
+      allow create, update: if isValidId(docId)
+        && request.resource.data.id == docId
+        && request.resource.data.title is string && request.resource.data.title.size() <= 150;
+      allow delete: if isValidId(docId);
+    }
+
+    // Tutorial Videos collection rules
+    match /tutorial_videos/{videoId} {
+      allow read: if true;
+      allow create, update: if isValidId(videoId)
+        && request.resource.data.id == videoId
+        && request.resource.data.title is string && request.resource.data.title.size() <= 150;
+      allow delete: if isValidId(videoId);
+    }
+
+    // App Users collection rules
+    match /app_users/{userId} {
+      allow read: if true;
+      allow create, update: if isValidId(userId)
+        && request.resource.data.id == userId
+        && request.resource.data.username is string && request.resource.data.username.size() <= 50
+        && (!('password' in request.resource.data) || (request.resource.data.password is string && request.resource.data.password.size() <= 100));
+      allow delete: if isValidId(userId);
+    }
+  }
+}

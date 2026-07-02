@@ -1,0 +1,96 @@
+{
+  "entities": {
+    "UsefulSite": {
+      "title": "Useful Site",
+      "description": "A useful site or link for ISP integration support.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "url": { "type": "string" },
+        "category": { "type": "string" },
+        "iconName": { "type": "string" }
+      },
+      "required": ["id", "name", "url"]
+    },
+    "DriveFolder": {
+      "title": "Drive Folder",
+      "description": "A Google Drive folder containing templates and documents.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "url": { "type": "string" },
+        "category": { "type": "string" },
+        "fileCount": { "type": "integer" }
+      },
+      "required": ["id", "name", "url", "category"]
+    },
+    "DocArticle": {
+      "title": "Document Article",
+      "description": "A technical support documentation article.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "category": { "type": "string" },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "content": { "type": "string" }
+      },
+      "required": ["id", "category", "title", "content"]
+    },
+    "TutorialVideo": {
+      "title": "Tutorial Video",
+      "description": "A video tutorial for ISP integration.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "duration": { "type": "integer" },
+        "difficulty": { "type": "string" },
+        "instructor": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "keyTakeaways": { "type": "array" },
+        "visualSteps": { "type": "array" }
+      },
+      "required": ["id", "title"]
+    },
+    "AppUser": {
+      "title": "App User",
+      "description": "A registered user within RepoChat.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "username": { "type": "string" },
+        "role": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "username", "role"]
+    }
+  },
+  "firestore": {
+    "useful_sites/{siteId}": {
+      "schema": "UsefulSite",
+      "description": "Collection of useful sites and links."
+    },
+    "drive_folders/{folderId}": {
+      "schema": "DriveFolder",
+      "description": "Collection of Google Drive folder paths."
+    },
+    "doc_articles/{docId}": {
+      "schema": "DocArticle",
+      "description": "Collection of documentation articles."
+    },
+    "tutorial_videos/{videoId}": {
+      "schema": "TutorialVideo",
+      "description": "Collection of video tutorials."
+    },
+    "app_users/{userId}": {
+      "schema": "AppUser",
+      "description": "Collection of application users."
+    }
+  }
+}

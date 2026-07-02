@@ -37,6 +37,29 @@ export interface DriveFolder {
   category: 'SGP' | 'HUBSOFT' | 'IXC' | 'HUBSOFT 1.1' | 'Voalle' | 'MK Solutions' | 'Outras integrações';
 }
 
+export interface DocArticle {
+  id: string;
+  category: string;
+  title: string;
+  summary: string;
+  content: string;
+}
+
+export interface TutorialVideo {
+  id: string;
+  title: string;
+  duration: number; // in seconds
+  difficulty: 'Iniciante' | 'Intermediário' | 'Avançado';
+  instructor: string;
+  category: string;
+  description: string;
+  keyTakeaways: string[];
+  visualSteps: { time: number; label: string; detail: string }[];
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  playlist?: string;
+}
+
 export const PRESET_DRIVE_FOLDERS: DriveFolder[] = [
   {
     id: 'drive-sgp',

@@ -13,17 +13,26 @@ import {
   FileJson,
   FileText,
   Clock,
-  Sparkles
+  Sparkles,
+  Edit
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface DriveFolderListProps {
   folders: DriveFolder[];
   onAddFolder: (folder: DriveFolder) => void;
+  onEditFolder?: (folder: DriveFolder) => void;
   onDeleteFolder: (id: string) => void;
+  isAdmin?: boolean;
 }
 
-export default function DriveFolderList({ folders, onAddFolder, onDeleteFolder }: DriveFolderListProps) {
+export default function DriveFolderList({ 
+  folders, 
+  onAddFolder, 
+  onEditFolder,
+  onDeleteFolder, 
+  isAdmin = false 
+}: DriveFolderListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('Todos');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -34,6 +43,15 @@ export default function DriveFolderList({ folders, onAddFolder, onDeleteFolder }
   const [newUrl, setNewUrl] = useState('');
   const [newFileCount, setNewFileCount] = useState<number>(0);
   const [newCategory, setNewCategory] = useState<DriveFolder['category']>('SGP');
+
+  // Edit Folder State
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingFolder, setEditingFolder] = useState<DriveFolder | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const [editUrl, setEditUrl] = useState('');
+  const [editFileCount, setEditFileCount] = useState<number>(0);
+  const [editCategory, setEditCategory] = useState<DriveFolder['category']>('SGP');
 
   const categories = ['Todos', 'SGP', 'HUBSOFT', 'IXC', 'HUBSOFT 1.1', 'Voalle', 'MK Solutions', 'Outras integrações'];
 
@@ -96,6 +114,42 @@ export default function DriveFolderList({ folders, onAddFolder, onDeleteFolder }
     setShowAddModal(false);
   };
 
+  const handleEditStart = (folder: DriveFolder) => {
+    setEditingFolder(folder);
+    setEditName(folder.name);
+    setEditDesc(folder.description);
+    setEditUrl(folder.url);
+    setEditFileCount(folder.fileCount);
+    setEditCategory(folder.category);
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingFolder || !editName || !editUrl) return;
+
+    let formattedUrl = editUrl;
+    if (!/^https?:\/\//i.test(editUrl)) {
+      formattedUrl = 'https://' + editUrl;
+    }
+
+    const updatedFolder: DriveFolder = {
+      ...editingFolder,
+      name: editName,
+      description: editDesc,
+      url: formattedUrl,
+      fileCount: Number(editFileCount) || 0,
+      category: editCategory,
+    };
+
+    if (onEditFolder) {
+      onEditFolder(updatedFolder);
+    }
+
+    setShowEditModal(false);
+    setEditingFolder(null);
+  };
+
   return (
     <div className="space-y-6">
       {/* Controls */}
@@ -112,6 +166,18 @@ export default function DriveFolderList({ folders, onAddFolder, onDeleteFolder }
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+
+        {/* Add Folder Button */}
+        {isAdmin && (
+          <button
+            id="btn-add-folder"
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-pink hover:bg-brand-pink/90 text-white font-semibold rounded-xl text-sm transition-all shadow-lg shadow-brand-pink/10 group cursor-pointer shrink-0"
+          >
+            <PlusCircle className="w-4 h-4 transition-transform group-hover:scale-110" />
+            <span>Vincular Pasta do Drive</span>
+          </button>
+        )}
       </div>
 
       {/* Category Pills */}
@@ -166,20 +232,35 @@ export default function DriveFolderList({ folders, onAddFolder, onDeleteFolder }
                     </div>
                   </div>
 
-                  {/* Delete Option for Custom folders */}
-                  {folder.id.startsWith('drive-custom') && (
-                    <button
-                      id={`btn-del-folder-${folder.id}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteFolder(folder.id);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/10 text-slate-500 hover:text-red-400 rounded-lg transition-all cursor-pointer"
-                      title="Excluir vínculo da pasta"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+                  {/* Edit/Delete Options */}
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    {isAdmin && (
+                      <button
+                        id={`btn-edit-folder-${folder.id}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditStart(folder);
+                        }}
+                        className="p-1.5 hover:bg-cyan-500/10 text-slate-500 hover:text-cyan-400 rounded-lg transition-all cursor-pointer"
+                        title="Editar vínculo da pasta"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    {(folder.id.startsWith('drive-custom') || isAdmin) && (
+                      <button
+                        id={`btn-del-folder-${folder.id}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteFolder(folder.id);
+                        }}
+                        className="p-1.5 hover:bg-red-500/10 text-slate-500 hover:text-red-400 rounded-lg transition-all cursor-pointer"
+                        title="Excluir vínculo da pasta"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Description */}
@@ -334,6 +415,125 @@ export default function DriveFolderList({ folders, onAddFolder, onDeleteFolder }
                   className="flex-1 px-4 py-2.5 bg-brand-pink hover:bg-brand-pink/90 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-brand-pink/10 cursor-pointer"
                 >
                   Vincular Pasta
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Edit Folder Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-[#000236] border border-white/10 rounded-2xl w-full max-w-lg p-6 relative shadow-2xl overflow-hidden"
+          >
+            {/* Design detail */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-brand-pink" />
+
+            <button
+              id="btn-close-edit-folder"
+              onClick={() => {
+                setShowEditModal(false);
+                setEditingFolder(null);
+              }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 hover:bg-[#000224] rounded-lg transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <h3 className="font-display font-semibold text-lg text-white mb-4 flex items-center gap-2">
+              <Edit className="text-brand-pink w-5 h-5" />
+              Editar Vínculo da Pasta
+            </h3>
+
+            <form onSubmit={handleEditSubmit} className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">
+                    Nome da Pasta *
+                  </label>
+                  <input
+                    id="edit-folder-name"
+                    type="text"
+                    required
+                    placeholder="Ex: Documentos SGP, Imagens..."
+                    className="w-full bg-[#000224] border border-white/10 focus:border-brand-pink/60 focus:outline-none focus:ring-1 focus:ring-brand-pink/30 text-slate-200 placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                  />
+                </div>
+
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">
+                    Sistemas do Chatbot
+                  </label>
+                  <select
+                    id="edit-folder-category"
+                    className="w-full bg-[#000224] border border-white/10 focus:border-brand-pink/60 focus:outline-none focus:ring-1 focus:ring-brand-pink/30 text-slate-200 rounded-xl px-4 py-2.5 text-sm cursor-pointer"
+                    value={editCategory}
+                    onChange={(e) => setEditCategory(e.target.value as DriveFolder['category'])}
+                  >
+                    <option value="SGP">SGP</option>
+                    <option value="HUBSOFT">HUBSOFT</option>
+                    <option value="IXC">IXC</option>
+                    <option value="HUBSOFT 1.1">HUBSOFT 1.1</option>
+                    <option value="Voalle">Voalle</option>
+                    <option value="MK Solutions">MK Solutions</option>
+                    <option value="Outras integrações">Outras integrações</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">
+                  Link Compartilhado do Google Drive *
+                </label>
+                <input
+                  id="edit-folder-url"
+                  type="text"
+                  required
+                  placeholder="Ex: https://drive.google.com/drive/folders/..."
+                  className="w-full bg-[#000224] border border-white/10 focus:border-brand-pink/60 focus:outline-none focus:ring-1 focus:ring-brand-pink/30 text-slate-200 placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm"
+                  value={editUrl}
+                  onChange={(e) => setEditUrl(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">
+                  Descrição do Conteúdo
+                </label>
+                <textarea
+                  id="edit-folder-desc"
+                  rows={3}
+                  placeholder="Descreva quais arquivos são encontrados nessa pasta e para quais clientes ela serve."
+                  className="w-full bg-[#000224] border border-white/10 focus:border-brand-pink/60 focus:outline-none focus:ring-1 focus:ring-brand-pink/30 text-slate-200 placeholder:text-slate-600 rounded-xl p-3 text-sm resize-none"
+                  value={editDesc}
+                  onChange={(e) => setEditDesc(e.target.value)}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  id="btn-cancel-edit-folder"
+                  type="button"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingFolder(null);
+                  }}
+                  className="flex-1 px-4 py-2.5 border border-white/10 hover:bg-[#000224] text-slate-400 rounded-xl text-sm font-semibold transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  id="btn-submit-edit-folder"
+                  type="submit"
+                  className="flex-1 px-4 py-2.5 bg-brand-pink hover:bg-brand-pink/90 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-brand-pink/10 cursor-pointer"
+                >
+                  Salvar Alterações
                 </button>
               </div>
             </form>

@@ -10,19 +10,28 @@ import {
   ExternalLink, 
   Globe, 
   Search, 
-  X,
+  X, 
   PlusCircle,
-  Sparkles
+  Sparkles,
+  Edit
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface UsefulSitesGridProps {
   sites: UsefulSite[];
   onAddSite: (site: UsefulSite) => void;
+  onEditSite?: (site: UsefulSite) => void;
   onDeleteSite: (id: string) => void;
+  isAdmin?: boolean;
 }
 
-export default function UsefulSitesGrid({ sites, onAddSite, onDeleteSite }: UsefulSitesGridProps) {
+export default function UsefulSitesGrid({ 
+  sites, 
+  onAddSite, 
+  onEditSite,
+  onDeleteSite, 
+  isAdmin = false 
+}: UsefulSitesGridProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('Todos');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -32,6 +41,14 @@ export default function UsefulSitesGrid({ sites, onAddSite, onDeleteSite }: Usef
   const [newDesc, setNewDesc] = useState('');
   const [newUrl, setNewUrl] = useState('');
   const [newCategory, setNewCategory] = useState<UsefulSite['category']>('Ferramentas');
+
+  // Edit site form state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingSite, setEditingSite] = useState<UsefulSite | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const [editUrl, setEditUrl] = useState('');
+  const [editCategory, setEditCategory] = useState<UsefulSite['category']>('Ferramentas');
 
   const categories = ['Todos', 'Ferramentas', 'Desenvolvimento', 'IA & Produtividade', 'Marketing', 'Outros'];
 
@@ -92,6 +109,40 @@ export default function UsefulSitesGrid({ sites, onAddSite, onDeleteSite }: Usef
     setShowAddModal(false);
   };
 
+  const handleEditStart = (site: UsefulSite) => {
+    setEditingSite(site);
+    setEditName(site.name);
+    setEditDesc(site.description);
+    setEditUrl(site.url);
+    setEditCategory(site.category);
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSite || !editName || !editUrl) return;
+
+    let formattedUrl = editUrl;
+    if (!/^https?:\/\//i.test(editUrl)) {
+      formattedUrl = 'https://' + editUrl;
+    }
+
+    const updatedSite: UsefulSite = {
+      ...editingSite,
+      name: editName,
+      description: editDesc,
+      url: formattedUrl,
+      category: editCategory
+    };
+
+    if (onEditSite) {
+      onEditSite(updatedSite);
+    }
+    
+    setShowEditModal(false);
+    setEditingSite(null);
+  };
+
   return (
     <div className="space-y-6">
       {/* Filters and Search Header */}
@@ -108,6 +159,18 @@ export default function UsefulSitesGrid({ sites, onAddSite, onDeleteSite }: Usef
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+
+        {/* Add Button */}
+        {isAdmin && (
+          <button
+            id="btn-add-site"
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-pink hover:bg-brand-pink/90 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-brand-pink/10 group cursor-pointer shrink-0"
+          >
+            <PlusCircle className="w-4 h-4 transition-transform group-hover:scale-110" />
+            <span>Adicionar Atalho</span>
+          </button>
+        )}
       </div>
 
       {/* Category Pills */}
@@ -162,7 +225,20 @@ export default function UsefulSitesGrid({ sites, onAddSite, onDeleteSite }: Usef
 
                   {/* Actions */}
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    {site.id.startsWith('site-custom') && (
+                    {isAdmin && (
+                      <button
+                        id={`btn-edit-site-${site.id}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditStart(site);
+                        }}
+                        className="p-1.5 hover:bg-cyan-500/10 text-slate-500 hover:text-cyan-400 rounded-lg transition-colors cursor-pointer"
+                        title="Editar atalho"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    {(site.id.startsWith('site-custom') || isAdmin) && (
                       <button
                         id={`btn-del-site-${site.id}`}
                         onClick={(e) => {
@@ -310,6 +386,121 @@ export default function UsefulSitesGrid({ sites, onAddSite, onDeleteSite }: Usef
                   className="flex-1 px-4 py-2.5 bg-brand-pink hover:bg-brand-pink/90 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-brand-pink/10 cursor-pointer"
                 >
                   Criar Atalho
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Edit Shortcut Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-[#000236] border border-white/10 rounded-2xl w-full max-w-md p-6 relative shadow-2xl overflow-hidden"
+          >
+            {/* Design detail */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-brand-pink" />
+
+            <button
+              id="btn-close-edit-modal"
+              onClick={() => {
+                setShowEditModal(false);
+                setEditingSite(null);
+              }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 hover:bg-[#000224] rounded-lg transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <h3 className="font-display font-semibold text-lg text-white mb-4 flex items-center gap-2">
+              <Edit className="text-brand-pink w-5 h-5" />
+              Editar Atalho Útil
+            </h3>
+
+            <form onSubmit={handleEditSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">
+                  Nome da Ferramenta *
+                </label>
+                <input
+                  id="edit-site-name"
+                  type="text"
+                  required
+                  placeholder="Ex: Json Viewer, Claude, Figma..."
+                  className="w-full bg-[#000224] border border-white/10 focus:border-brand-pink/60 focus:outline-none focus:ring-1 focus:ring-brand-pink/30 text-slate-200 placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">
+                  Categoria
+                </label>
+                <select
+                  id="edit-site-category"
+                  className="w-full bg-[#000224] border border-white/10 focus:border-brand-pink/60 focus:outline-none focus:ring-1 focus:ring-brand-pink/30 text-slate-200 rounded-xl px-4 py-2.5 text-sm cursor-pointer"
+                  value={editCategory}
+                  onChange={(e) => setEditCategory(e.target.value as UsefulSite['category'])}
+                >
+                  <option value="Ferramentas">Ferramentas</option>
+                  <option value="Desenvolvimento">Desenvolvimento</option>
+                  <option value="IA & Produtividade">IA & Produtividade</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Outros">Outros</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">
+                  Endereço URL (Link) *
+                </label>
+                <input
+                  id="edit-site-url"
+                  type="text"
+                  required
+                  placeholder="Ex: https://claude.ai"
+                  className="w-full bg-[#000224] border border-white/10 focus:border-brand-pink/60 focus:outline-none focus:ring-1 focus:ring-brand-pink/30 text-slate-200 placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm"
+                  value={editUrl}
+                  onChange={(e) => setEditUrl(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">
+                  Breve Descrição
+                </label>
+                <textarea
+                  id="edit-site-desc"
+                  rows={3}
+                  placeholder="Para que serve essa ferramenta? Como ajuda o time de chatbot?"
+                  className="w-full bg-[#000224] border border-white/10 focus:border-brand-pink/60 focus:outline-none focus:ring-1 focus:ring-brand-pink/30 text-slate-200 placeholder:text-slate-600 rounded-xl p-3 text-sm resize-none"
+                  value={editDesc}
+                  onChange={(e) => setEditDesc(e.target.value)}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  id="btn-cancel-edit-site"
+                  type="button"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingSite(null);
+                  }}
+                  className="flex-1 px-4 py-2.5 border border-white/10 hover:bg-[#000224] text-slate-400 rounded-xl text-sm font-semibold transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  id="btn-submit-edit-site"
+                  type="submit"
+                  className="flex-1 px-4 py-2.5 bg-brand-pink hover:bg-brand-pink/90 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-brand-pink/10 cursor-pointer"
+                >
+                  Salvar Alterações
                 </button>
               </div>
             </form>
